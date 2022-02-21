@@ -2,27 +2,27 @@
 
 CoreNetwork module with the basic functionality of requests to the network.
 
-##Integration
+## Integration
 
-###if as local package
+### if as local package
 ```swift
     dependencies: [
         .package(path: "../CoreNetwork")
     ],
 ```
 
-###if as shared package
+### if as shared package
 ```swift
     dependencies: [
         .package(name: "CoreNetwork", url: "https://github.com/MosMetro-official/CoreNetwork.git", from: "0.0.1")
     ],
 ```
 
-##Structure
+## Structure
 
 The Package is a wrapper for easy network requests, that is includes SwiftyJSON lib inside. Available for iOS 13+, as it uses the async/await structure.
 
-##Usage
+## Usage
 
 First of all, it is necessary to designate the main host for the request - for different hosts, you can use different static variables, for convenience.
 ```swift
@@ -57,7 +57,20 @@ func loadSomeStuff() async throws -> VALUE {
 ```
 NOTE: Path must necessarily start with "/" -> it will throws a "badURL" error.
 
-##Errors
+## Delegate
+You can subscribe to APIClientDelegate to track some events, 2 methods are implemented now:
+```swift
+public protocol APIClientDelegate {
+    
+    func client(_ client: APIClient, willSendRequest request: inout URLRequest)
+    
+    func client(_ client: APIClient, initialRequest: Request, didReceiveInvalidResponse response: HTTPURLResponse, data: Data?) async throws -> Response
+}
+```
+'willSendRequest' tracks when a request is about to be sent - it is useful to use, for example, for a metric or a load indicator (don't forget about streams). In default implementation does nothing.
+'didReceiveInvalidResponse' did Receive Invalid Response works out when the server gives an invalid response, by default throws an error with an error code.
+
+## Errors
 In addition to the errors from SwiftyJSON, we also added 5 errors that can occur when working with the network:
 ```swift
     case badURL
