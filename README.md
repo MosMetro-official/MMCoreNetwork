@@ -51,9 +51,10 @@ func loadSomeStuff() async throws -> VALUE {
         let json = JSON(responce.data)
         let myValue : VALUE = json["VALUE_KEY"]
         return myValue
-        } catch {
-            throw error
-        }
+    } catch {
+        throw error
+    }
+}
 ```
 NOTE: Path must necessarily start with "/" -> it will throws a "badURL" error.
 
