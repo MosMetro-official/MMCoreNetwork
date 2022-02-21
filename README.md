@@ -2,27 +2,27 @@
 
 CoreNetwork module with the basic functionality of requests to the network.
 
-##Integration
+## Integration
 
-###if as local package
+### if as local package
 ```swift
     dependencies: [
         .package(path: "../CoreNetwork")
     ],
 ```
 
-###if as shared package
+### if as shared package
 ```swift
     dependencies: [
         .package(name: "CoreNetwork", url: "https://github.com/MosMetro-official/CoreNetwork.git", from: "0.0.1")
     ],
 ```
 
-##Structure
+## Structure
 
 The Package is a wrapper for easy network requests, that is includes SwiftyJSON lib inside. Available for iOS 13+, as it uses the async/await structure.
 
-##Usage
+## Usage
 
 First of all, it is necessary to designate the main host for the request - for different hosts, you can use different static variables, for convenience.
 ```swift
@@ -57,7 +57,7 @@ func loadSomeStuff() async throws -> VALUE {
 ```
 NOTE: Path must necessarily start with "/" -> it will throws a "badURL" error.
 
-##Errors
+## Errors
 In addition to the errors from SwiftyJSON, we also added 5 errors that can occur when working with the network:
 ```swift
     case badURL
