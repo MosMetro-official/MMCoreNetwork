@@ -25,7 +25,7 @@ public actor APIClient {
         self.httpProtocol = httpProtocol
     }
     
-    public func send(_ request: Request) async throws -> Response {
+    public func send(_ request: Request, schouldPrint: Bool = false) async throws -> Response {
         guard
             let url = try? makeURL(
                 path: request.path,
@@ -46,7 +46,9 @@ public actor APIClient {
             throw APIError.badData
         }
         #if DEBUG
-        print("🚧🚧🚧 MAKING URL REQUEST:\n\(urlRequest.url?.absoluteString ?? "empty URL")\n")
+        if schouldPrint {
+            print("🚧🚧🚧 MAKING URL REQUEST:\n\(urlRequest.url?.absoluteString ?? "empty URL")\n")
+        }
         #endif
         delegate.client(self, willSendRequest: &urlRequest)
         let (data, httpResponse, error) = try await session.data(from: urlRequest)
