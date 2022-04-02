@@ -26,7 +26,7 @@ public extension Request {
         )
     }
     
-    static func POST(path: String, body: [String:String]? = nil, contentType: HTTPContentType) -> Self {
+    static func POST(path: String, body: [String:Any]? = nil, contentType: HTTPContentType) -> Self {
         return Request(
             path: path,
             body: body,
