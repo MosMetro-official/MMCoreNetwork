@@ -7,12 +7,18 @@
 
 import Foundation
 
+
+
 public enum APIError: Error, LocalizedError {
+    
+    
     case badURL
     case badData
     case badRequest
+    case badMapping
     case noHTTPResponse
     case unacceptableStatusCode(Int)
+    case genericError(String) /// error with message
     
     public var errorTitle : String {
         return errorDescription
@@ -35,12 +41,17 @@ public enum APIError: Error, LocalizedError {
             
         case .badRequest:
             return "😣😣😣 Couldn't send a request."
+        case .badMapping:
+            return "😣😣😣 Couldn't serialize data"
             
         case .noHTTPResponse:
             return "😣😣😣 The server didn't send anything."
             
         case .unacceptableStatusCode(let statusCode):
             return "😣😣😣 Response status code was unacceptable: \(statusCode)."
+            
+        case .genericError(let message):
+            return message
         }
     }
 }
