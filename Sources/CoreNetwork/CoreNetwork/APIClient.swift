@@ -86,23 +86,25 @@ public class APIClient {
                         return
                     }
                 }
-            }
-            
-            guard let _data = data else {
-                completion(.failure(.badData))
+            } else {
+                guard let _data = data else {
+                    completion(.failure(.badData))
+                    return
+                }
+                
+                #if DEBUG
+                print("🚧🚧🚧 JSON RESPONSE:\n\(JSON(_data))\n")
+                #endif
+                let response = Response(
+                    data : _data,
+                    success : true,
+                    statusCode:  httpResponse.statusCode
+                )
+                completion(.success(response))
                 return
             }
             
-#if DEBUG
-            print("🚧🚧🚧 JSON RESPONSE:\n\(JSON(_data))\n")
-#endif
-            let response = Response(
-                data : _data,
-                success : true,
-                statusCode:  httpResponse.statusCode
-            )
-            completion(.success(response))
-            return
+            
         }
         task.resume()
         
@@ -156,9 +158,9 @@ extension APIClient {
             case .other:
                 break
             }
-#if DEBUG
+            #if DEBUG
             print("🔔 REQUEST BODY\n\n\(request.httpBody as Any))\n")
-#endif
+            #endif
         }
         return request
     }
