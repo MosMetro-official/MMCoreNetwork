@@ -7,20 +7,26 @@
 
 import Foundation
 
-public protocol APIClientDelegate {
-    
+public enum RetryPolicy {
+    case shouldRetry
+    case doNotRetry
+    case doNotRetryWith(APIError)
+}
+
+public protocol APIClientInterceptor {
     func client(_ client: APIClient, willSendRequest request: inout URLRequest)
     
-    func client(_ client: APIClient, initialRequest: Request, didReceiveInvalidResponse response: HTTPURLResponse, data: Data?) async throws -> Response
+    func client(_ client: APIClient, initialRequest: Request, didReceiveInvalidResponse response: HTTPURLResponse, data: Data?, completion: @escaping (RetryPolicy) -> Void)
 }
 
-public extension APIClientDelegate {
+
+
+public final class DefaultAPIClientInterceptor : APIClientInterceptor {
+    public func client(_ client: APIClient, willSendRequest request: inout URLRequest) { }
     
-    func client(_ client: APIClient, willSendRequest request: inout URLRequest) { }
-    
-    func client(_ client: APIClient, initialRequest: Request, didReceiveInvalidResponse response: HTTPURLResponse, data: Data?) async throws -> Response {
-        throw APIError.unacceptableStatusCode(response.statusCode)
+    public func client(_ client: APIClient, initialRequest: Request, didReceiveInvalidResponse response: HTTPURLResponse, data: Data?, completion: @escaping (RetryPolicy) -> Void) {
+        completion(.doNotRetry)
     }
+    
+    
 }
-
-public final class DefaultAPIClientDelegate : APIClientDelegate { }

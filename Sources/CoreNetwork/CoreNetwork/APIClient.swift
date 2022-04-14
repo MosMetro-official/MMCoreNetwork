@@ -7,32 +7,33 @@
 
 import Foundation
 
-public actor APIClient {
+public class APIClient {
     internal let host : String
     internal let session : URLSession
-    internal let delegate : APIClientDelegate
+    internal let interceptor : APIClientInterceptor
     internal let httpProtocol : HTTPProtocol
     
     public init(
         host: String,
-        delegate: APIClientDelegate? = nil,
+        interceptor: APIClientInterceptor? = nil,
         httpProtocol: HTTPProtocol = .HTTPS,
         configuration: URLSessionConfiguration = .default
     ) {
         self.host = host
         self.session = URLSession(configuration: configuration)
-        self.delegate = delegate ?? DefaultAPIClientDelegate()
+        self.interceptor = interceptor ?? DefaultAPIClientInterceptor()
         self.httpProtocol = httpProtocol
     }
     
-    public func send(_ request: Request, schouldPrint: Bool = false) async throws -> Response {
+    public func send(_ request: Request, schouldPrint: Bool = false, completion: @escaping (Result<Response,APIError>) -> Void)  {
         guard
             let url = try? makeURL(
                 path: request.path,
                 query: request.query
             )
         else {
-            throw APIError.badData
+            completion(.failure(APIError.badData))
+            return
         }
         
         guard
@@ -43,48 +44,72 @@ public actor APIClient {
                 contentType: request.contentType
             )
         else {
-            throw APIError.badData
+            completion(.failure(APIError.badData))
+            return
         }
-        #if DEBUG
+#if DEBUG
         if schouldPrint {
             print("🚧🚧🚧 MAKING URL REQUEST:\n\(urlRequest.url?.absoluteString ?? "empty URL")\n")
         }
-        #endif
-        delegate.client(self, willSendRequest: &urlRequest)
-        let (data, httpResponse, error) = try await session.data(from: urlRequest)
-        
-        if let error = error {
-            #if DEBUG
-            print(error.localizedDescription)
-            #endif
-            // тут хендлить повторный реквест не надо, как правило тут ошибки транспортные
-            throw APIError.badRequest
+#endif
+        interceptor.client(self, willSendRequest: &urlRequest)
+        let task = session.dataTask(with: urlRequest) { data, httpResponse, error in
+            if let error = error {
+#if DEBUG
+                print(error.localizedDescription)
+#endif
+                // тут хендлить повторный реквест не надо, как правило тут ошибки транспортные
+                completion(.failure(.badRequest))
+                return
+            }
+            
+            guard let httpResponse = httpResponse as? HTTPURLResponse else {
+                completion(.failure(.noHTTPResponse))
+                return
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                // handling HTTP error
+                self.interceptor.client(self, initialRequest: request, didReceiveInvalidResponse: httpResponse, data: data) { [weak self] retryPolicy in
+                    guard let self = self else { return }
+                    switch retryPolicy {
+                    case .shouldRetry:
+                        self.send(request) { result in
+                            completion(result)
+                            return
+                        }
+                    case .doNotRetry:
+                        completion(.failure(.unacceptableStatusCode(httpResponse.statusCode)))
+                        return
+                    case .doNotRetryWith(let retryError):
+                        completion(.failure(retryError))
+                        return
+                    }
+                }
+            }
+            
+            guard let _data = data else {
+                completion(.failure(.badData))
+                return
+            }
+            
+#if DEBUG
+            print("🚧🚧🚧 JSON RESPONSE:\n\(JSON(_data))\n")
+#endif
+            let response = Response(
+                data : _data,
+                success : true,
+                statusCode:  httpResponse.statusCode
+            )
+            completion(.success(response))
+            return
         }
+        task.resume()
         
-        guard
-            let httpResponse = httpResponse as? HTTPURLResponse
-        else {
-            throw APIError.noHTTPResponse
-        }
         
-        if !(200...299).contains(httpResponse.statusCode) {
-            // handling HTTP error
-            return try await delegate.client(self, initialRequest: request, didReceiveInvalidResponse: httpResponse, data: data)
-        }
-        
-        guard let _data = data else { throw APIError.badData }
-        #if DEBUG
-        print("🚧🚧🚧 JSON RESPONSE:\n\(JSON(_data))\n")
-        #endif
-        return Response(
-            data : _data,
-            success : true,
-            statusCode:  httpResponse.statusCode
-        )
     }
 }
 
-@available(iOS 13.0.0, *)
 extension APIClient {
     
     private func makeURL(path: String, query: [String: String]?) throws -> URL {
@@ -131,9 +156,9 @@ extension APIClient {
             case .other:
                 break
             }
-            #if DEBUG
+#if DEBUG
             print("🔔 REQUEST BODY\n\n\(request.httpBody as Any))\n")
-            #endif
+#endif
         }
         return request
     }
