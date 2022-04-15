@@ -53,6 +53,8 @@ public class APIClient {
         }
 #endif
         interceptor.client(self, willSendRequest: &urlRequest)
+        let group = DispatchGroup()
+        
         let task = session.dataTask(with: urlRequest) { data, httpResponse, error in
             if let error = error {
 #if DEBUG
@@ -67,7 +69,7 @@ public class APIClient {
                 completion(.failure(.noHTTPResponse))
                 return
             }
-            let group = DispatchGroup()
+            
             
             if !(200...299).contains(httpResponse.statusCode) {
                 // handling HTTP error
