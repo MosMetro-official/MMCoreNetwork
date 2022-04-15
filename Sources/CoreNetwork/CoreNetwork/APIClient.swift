@@ -54,7 +54,7 @@ public class APIClient {
 #endif
         interceptor.client(self, willSendRequest: &urlRequest)
         let group = DispatchGroup()
-        
+        print("CORENETWORK: started network call")
         let task = session.dataTask(with: urlRequest) { data, httpResponse, error in
             if let error = error {
 #if DEBUG
@@ -73,25 +73,30 @@ public class APIClient {
             
             if !(200...299).contains(httpResponse.statusCode) {
                 // handling HTTP error
-                
+                print("CORENETWORK: Did receive error \(httpResponse.statusCode)")
                 self.interceptor.client(self, initialRequest: request, didReceiveInvalidResponse: httpResponse, data: data) { [weak self] retryPolicy in
                     guard let self = self else { return }
                     switch retryPolicy {
                     case .shouldRetry:
+                        print("CORENETWORK: Retrying request \(request.path)")
                         self.send(request) { result in
+                            print("CORENETWORK: Retried request did finish with \(result)")
                             group.notify(queue: .global(qos: .userInitiated)) {
+                                print("CORENETWORK: notified callback")
                                 completion(result)
                                 return
                             }
                             
                         }
                     case .doNotRetry:
+                        print("CORENETWORK: Request marked as do not retry")
                         group.notify(queue: .global(qos: .userInitiated)) {
                             completion(.failure(.unacceptableStatusCode(httpResponse.statusCode)))
                             return
                         }
                         
                     case .doNotRetryWith(let retryError):
+                        print("CORENETWORK: Request marked as do not retry with error \(retryError.errorTitle)")
                         group.notify(queue: .global(qos: .userInitiated)) {
                             completion(.failure(retryError))
                             return
@@ -100,6 +105,7 @@ public class APIClient {
                     }
                 }
             } else {
+                print("CORENETWORK: No errors with request, suceeded to parsing data")
                 guard let _data = data else {
                     completion(.failure(.badData))
                     return
@@ -113,6 +119,7 @@ public class APIClient {
                     success : true,
                     statusCode:  httpResponse.statusCode
                 )
+                print("CORENETWORK: parsed data")
                 group.notify(queue: .global(qos: .userInitiated)) {
                     completion(.success(response))
                     return
