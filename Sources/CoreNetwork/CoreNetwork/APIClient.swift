@@ -67,23 +67,34 @@ public class APIClient {
                 completion(.failure(.noHTTPResponse))
                 return
             }
+            let group = DispatchGroup()
             
             if !(200...299).contains(httpResponse.statusCode) {
                 // handling HTTP error
+                
                 self.interceptor.client(self, initialRequest: request, didReceiveInvalidResponse: httpResponse, data: data) { [weak self] retryPolicy in
                     guard let self = self else { return }
                     switch retryPolicy {
                     case .shouldRetry:
                         self.send(request) { result in
-                            completion(result)
-                            return
+                            group.notify(queue: .global(qos: .userInitiated)) {
+                                completion(result)
+                                return
+                            }
+                            
                         }
                     case .doNotRetry:
-                        completion(.failure(.unacceptableStatusCode(httpResponse.statusCode)))
-                        return
+                        group.notify(queue: .global(qos: .userInitiated)) {
+                            completion(.failure(.unacceptableStatusCode(httpResponse.statusCode)))
+                            return
+                        }
+                        
                     case .doNotRetryWith(let retryError):
-                        completion(.failure(retryError))
-                        return
+                        group.notify(queue: .global(qos: .userInitiated)) {
+                            completion(.failure(retryError))
+                            return
+                        }
+                        
                     }
                 }
             } else {
@@ -100,8 +111,11 @@ public class APIClient {
                     success : true,
                     statusCode:  httpResponse.statusCode
                 )
-                completion(.success(response))
-                return
+                group.notify(queue: .global(qos: .userInitiated)) {
+                    completion(.success(response))
+                    return
+                }
+                
             }
             
             
