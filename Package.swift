@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "CoreNetwork",
+    name: "MMCoreNetwork",
     platforms: [
         .iOS(.v13)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "CoreNetwork",
+            name: "MMCoreNetwork",
             targets: ["CoreNetwork"]),
     ],
     dependencies: [

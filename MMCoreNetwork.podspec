@@ -15,7 +15,7 @@ Pod::Spec.new do |spec|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  spec.name         = "CoreNetwork"
+  spec.name         = "MMCoreNetwork"
   spec.version      = "0.0.4"
   spec.summary      = "CoreNetwork module with the basic functionality of requests to the network.."
 
@@ -27,7 +27,7 @@ Pod::Spec.new do |spec|
   #spec.description  = <<-DESC
     #               DESC
 
-  spec.homepage     = "https://github.com/MosMetro-official/CoreNetwork"
+  spec.homepage     = "https://github.com/MosMetro-official/MMCoreNetwork.git"
   # spec.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
 
 
@@ -78,7 +78,7 @@ Pod::Spec.new do |spec|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  spec.source       = { :git => "https://github.com/MosMetro-official/CoreNetwork.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/MosMetro-official/MMCoreNetwork.git", :tag => "#{spec.version}" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
