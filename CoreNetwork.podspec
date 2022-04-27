@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   #  Popular ones are 'MIT', 'BSD' and 'Apache License, Version 2.0'.
   #
 
-  spec.license      = { :type => "MIT", :file => "LICENSE.md" }
+  spec.license      = { :type => "MIT" }
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -91,7 +91,7 @@ Pod::Spec.new do |spec|
 
   spec.source_files  = "Sources/CoreNetwork/**/*"
   spec.exclude_files = "Tests"
-
+  s.swift_version = '4.2'
   # spec.public_header_files = "Classes/**/*.h"
 
 
