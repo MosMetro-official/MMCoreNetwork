@@ -91,7 +91,7 @@ Pod::Spec.new do |spec|
 
   spec.source_files  = "Sources/CoreNetwork/**/*"
   spec.exclude_files = "Tests"
-  s.swift_version = '4.2'
+  spec.swift_version = '4.2'
   # spec.public_header_files = "Classes/**/*.h"
 
 
