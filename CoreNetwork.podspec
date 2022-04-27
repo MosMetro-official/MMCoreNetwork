@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "CoreNetwork"
-  spec.version      = "0.0.2-callbacks"
+  spec.version      = "0.0.4"
   spec.summary      = "CoreNetwork module with the basic functionality of requests to the network.."
 
   # This description is used to generate tags and improve search results.
