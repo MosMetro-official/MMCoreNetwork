@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "CoreNetwork"
-  spec.version      = "0.0.1"
+  spec.version      = "0.0.2-callbacks"
   spec.summary      = "CoreNetwork module with the basic functionality of requests to the network.."
 
   # This description is used to generate tags and improve search results.
@@ -78,7 +78,7 @@ Pod::Spec.new do |spec|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  spec.source       = { :git => "https://github.com/MosMetro-official/CoreNetwork.git", :branch => "callbacks" }
+  spec.source       = { :git => "https://github.com/MosMetro-official/CoreNetwork.git", :tag => "#{spec.version}" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
