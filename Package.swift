@@ -25,7 +25,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "MMCoreNetworkTests",
-            dependencies: ["CoreNetwork"],
+            dependencies: ["MMCoreNetwork"],
             resources: [
                 .copy("Files/Tests.json")
             ]
